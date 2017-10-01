@@ -2,6 +2,7 @@
 import sys
 
 def to_base_64(hex_string):
+
     base_64_string = ""
     base_64_list = []
     for i in xrange(0,len(hex_string),6):
@@ -11,6 +12,7 @@ def to_base_64(hex_string):
     return "".join(base_64_list)
 
 def hex_chars_to_base64(hex_chars):
+
     if len(hex_chars) > 6: 
         sys.stderr.write('Too many hex chars! Exiting...') 
         exit(1)
@@ -33,6 +35,7 @@ def hex_chars_to_base64(hex_chars):
     return "".join(base_64_list)
 
 def binary_char_to_base64(binary_base64_char):
+
     int_from_binary = int(binary_base64_char,2)
     base_64_char = ''
     if(int_from_binary >= 0 and int_from_binary <= 25):
@@ -51,7 +54,11 @@ def binary_char_to_base64(binary_base64_char):
         exit(1)
     return base_64_char
 
-hex_string="49276d206b696c6c696e6720796f757220627261696e206c696b65206120706f69736f6e6f7573206d757368726f6f6d12"
-        
-print to_base_64(hex_string)
-print 'Verification: ' + hex_string.decode('hex').encode('base64')
+def main():
+
+    hex_string="49276d206b696c6c696e6720796f757220627261696e206c696b65206120706f69736f6e6f7573206d757368726f6f6d12"
+    print to_base_64(hex_string)
+    print 'Verification: ' + hex_string.decode('hex').encode('base64')
+
+if __name__ == "__main__":
+    main()
