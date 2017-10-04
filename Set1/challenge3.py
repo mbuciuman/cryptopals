@@ -7,11 +7,15 @@ import sys
 
 hex_encoded_string="1b37373331363f78151b7f2b783431333d78397828372d363c78373e783a393b3736"
 
-def xor_char(int_char):
+def get_hex(int_char):
 
-	padded_hex_char = chr(int_char).encode('hex').zfill(2)
-	key=padded_hex_char*(len(hex_encoded_string)/2)
-	return (challenge2.xor(key, hex_encoded_string)).decode('hex')
+	return chr(int_char).encode('hex').zfill(2)
+
+
+def xor_strings(hex_string_one, hex_string_two):
+
+	return (challenge2.xor(hex_string_one, hex_string_two)).decode('hex')
+
 
 def main():
 
@@ -21,7 +25,8 @@ def main():
 		print "Trying all ASCII chars."
 		euclid_dict = EuclidDict()
 		for i in xrange(0x100):
-			result = xor_char(i)
+			key = get_hex(i)*(len(hex_encoded_string)/2)
+			result = xor_strings(key, hex_encoded_string)
 			euclid_dict.add_phrase(result)
 		regex = '^[\w\s!-/:-@[-`]*$'
 		for i, phrase in enumerate(euclid_dict.get_top_phrases(5, regex)):
