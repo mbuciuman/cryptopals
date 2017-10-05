@@ -44,6 +44,7 @@ class EuclidDict:
         return (sorted(filtered_dict, key=filtered_dict.__getitem__))[:num]
 
     def get_top_phrases_and_dists(self, num, regex=None):
+
         if not regex:
             sorted_keys = (sorted(self.__euclid_dict,
                                   key=self.__euclid_dict.__getitem__))[:num]
