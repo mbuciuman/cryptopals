@@ -1,4 +1,5 @@
 import re
+from operator import attrgetter
 
 
 class EuclidDict:
@@ -12,7 +13,7 @@ class EuclidDict:
 
     def __init__(self):
 
-        self.__euclid_dict = {}
+        self._euclid_dict = {}
 
     def _euclidian_distance(self, phrase):
 
@@ -30,28 +31,48 @@ class EuclidDict:
         euclidian_dist = euclidian_sum**0.5
         return euclidian_dist
 
-    def add_phrase(self, phrase):
+    def add_phrase(self, phrase, encryption_key=None):
 
-        self.__euclid_dict[phrase] = self._euclidian_distance(phrase)
+        self._euclid_dict[phrase] = EuclidEntry(phrase, self._euclidian_distance(phrase), encryption_key)
 
     def get_top_phrases(self, num, regex=None):
 
         if not regex:
-            return (sorted(self.__euclid_dict, key=self.__euclid_dict.__getitem__))[:num]
+            return (sorted(self._euclid_dict.keys(), key=lambda phrase: self._euclid_dict[phrase].get_euclid_dist()))[:num]
         pattern = re.compile(str(regex))
-        filtered_dict = {key: self.__euclid_dict[
-            key] for key in self.__euclid_dict.keys() if pattern.match(key)}
-        return (sorted(filtered_dict, key=filtered_dict.__getitem__))[:num]
+        filtered_dict = {key: self._euclid_dict[
+            key] for key in self._euclid_dict.keys() if pattern.match(key)}
+        return (sorted(filtered_dict, key=lambda phrase: self._euclid_dict[phrase].get_euclid_dist()))[:num]
 
-    def get_top_phrases_and_dists(self, num, regex=None):
+    def get_top_items(self, num, regex=None):
 
         if not regex:
-            sorted_keys = (sorted(self.__euclid_dict,
-                                  key=self.__euclid_dict.__getitem__))[:num]
-            return {key: __euclid_dict[key] for key in sorted_keys}
+            sorted_keys = (sorted(self._euclid_dict.keys(),
+                                  key=lambda phrase: self._euclid_dict[phrase].get_euclid_dist()))[:num]
+            return {key: self._euclid_dict[key] for key in sorted_keys}
         pattern = re.compile(str(regex))
-        filtered_dict = {key: self.__euclid_dict[
-            key] for key in self.__euclid_dict.keys() if pattern.match(key)}
+        filtered_dict = {key: self._euclid_dict[
+            key] for key in self._euclid_dict.keys() if pattern.match(key)}
         sorted_keys = (
-            sorted(filtered_dict, key=filtered_dict.__getitem__))[:num]
-        return {key: __euclid_dict[key] for key in sorted_keys}
+            sorted(filtered_dict.keys(), key=lambda phrase: self._euclid_dict[phrase].get_euclid_dist()))[:num]
+        return {key: self._euclid_dict[key] for key in sorted_keys}
+
+    def get_size(self):
+        return len(self._euclid_dict)
+
+
+class EuclidEntry:
+
+    def __init__(self, phrase, euclid_dist, encryption_key):
+        self.phrase = phrase
+        self.euclid_dist = euclid_dist
+        self.encryption_key = encryption_key
+
+    def get_phrase(self):
+        return self.phrase
+
+    def get_euclid_dist(self):
+        return self.euclid_dist
+
+    def get_encryption_key(self):
+        return self.encryption_key

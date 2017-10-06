@@ -3,6 +3,7 @@
 import challenge2
 import challenge3
 from euclid_dict import EuclidDict
+import string
 
 test_string_one = "this is a test"
 test_string_two = "wokka wokka!!!"
@@ -78,7 +79,7 @@ def main():
             base64_text += line[:-1]  # remove newline
     ciphertext = base64_text.decode('base64').encode('hex')
     keysize_edit_dists = get_keysize_edit_dists(ciphertext)
-    best_keysizes = get_best_keysizes(keysize_edit_dists, 5)
+    best_keysizes = get_best_keysizes(keysize_edit_dists, 10)
     sorted_best_keysizes = sorted(
         best_keysizes.keys(), key=best_keysizes.__getitem__)
     for i, keysize in enumerate(sorted_best_keysizes):
@@ -86,25 +87,43 @@ def main():
     print
     print "Ciphertext:\n" + ciphertext + "\n"
     print "Blocked Ciphertext:\n"
-    blocked_ciphertext = break_ciphertext_into_blocks(
-        ciphertext, sorted_best_keysizes[0])
-    for line in blocked_ciphertext:
-        print str(line)
-    print "Transposed Ciphertext:\n"
-    transposed_ciphertext = transpose_blocks(blocked_ciphertext)
-    for line in transposed_ciphertext:
-        print str(line)
-    print "Untransposed Ciphertext:\n"
-    untransposed_ciphertext = untranspose_blocks(transposed_ciphertext)
-    for line in untransposed_ciphertext:
-        print str(line)
-    euclid_dict = [EuclidDict()] * len(transposed_ciphertext)
-    best_key = ""
-    for i, line in enumerate(transposed_ciphertext):
-        for j in xrange(0x100):
-            key = challenge3.get_hex(j) * (len(line) / 2)
-            result = challenge3.xor_strings(key, line)
-            euclid_dict[i].add_phrase(result)
+    for k in xrange(10):
+        try:
+            blocked_ciphertext = break_ciphertext_into_blocks(
+                ciphertext, sorted_best_keysizes[k])
+            """
+            for line in blocked_ciphertext:
+                print str(line)
+            print "Transposed Ciphertext:\n"
+            """
+            transposed_ciphertext = transpose_blocks(blocked_ciphertext)
+            """
+            for line in transposed_ciphertext:
+                print str(line)
+            print "Untransposed Ciphertext:\n"
+            """
+            untransposed_ciphertext = untranspose_blocks(transposed_ciphertext)
+            """
+            for line in untransposed_ciphertext:
+                print str(line)
+            """
+            euclid_dict = [EuclidDict() for i in xrange(len(transposed_ciphertext))]
+            best_key = ""
+            regex = '^[' + string.printable + ']*$'
+            for i, line in enumerate(transposed_ciphertext):
+                for j in xrange(0x100):
+                    hex_key_char = challenge3.get_hex(j)
+                    key = hex_key_char * (len(line) / 2)
+                    result = challenge3.xor_strings(key, line)
+                    key_char = chr(int(hex_key_char, 16))
+                    euclid_dict[i].add_phrase(result, key_char)
+                top_items = euclid_dict[i].get_top_items(1, regex)
+                top_item = top_items[top_items.keys()[0]]
+                print "Line: " + line + " I: " + str(i) + " Top item: " + str(top_item.get_phrase())
+                best_key += top_item.get_encryption_key()
+            print "Best key: " + best_key
+        except IndexError:
+            print "hi"
 
 
 if __name__ == "__main__":
