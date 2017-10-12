@@ -109,21 +109,26 @@ def main():
             for line in untransposed_ciphertext:
                 print str(line)
             """
-            euclid_dict = [EuclidDict() for i in xrange(len(transposed_ciphertext))]
+            euclid_dict = [EuclidDict()
+                           for i in xrange(len(transposed_ciphertext))]
             best_key = ""
             #regex = '^[' + string.printable + ']*$'
             for i, line in enumerate(transposed_ciphertext):
-                for j in itertools.chain(xrange(0x30, 0x39), xrange(0x41, 0x5a), xrange(0x61, 0x7a)):
+                for j in xrange(0x100):
                     hex_key_char = challenge3.get_hex(j)
                     key = hex_key_char * (len(line) / 2)
                     result = challenge3.xor_strings(key, line)
                     key_char = chr(int(hex_key_char, 16))
                     euclid_dict[i].add_phrase(result, key_char)
-                top_items = euclid_dict[i].get_top_items(1)
+                top_items = euclid_dict[i].get_top_items(5)
                 top_item = top_items[top_items.keys()[0]]
-                #print "Line: " + line + " I: " + str(i) + " Top item: " + str(top_item.get_phrase())
                 best_key += top_item.get_encryption_key()
-            print "Best key with key length " + str(len(best_key)) + ": " + best_key
+                #best_phrase += top_item.get_phrase()
+                for m, item_key in enumerate(top_items.keys()):
+                    print "Best " + str(m) + " char " + top_items[item_key].get_encryption_key() + " for block " + str(i)
+                    print "Decoded phrase: " + top_items[item_key].get_phrase()
+                # print "Best key with key length " + str(len(best_key)) + ": "
+                # + best_key
         except IndexError:
             print "hi"
 
